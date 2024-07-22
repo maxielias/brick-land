@@ -1,1 +1,2 @@
 pip freeze > requirements.txt
+Para instalar pgvector hay que utilizar las x64 Native Build Tools con derechos de adminstrador
