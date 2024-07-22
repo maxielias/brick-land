@@ -1,0 +1,34 @@
+# Proyecto Brick-Land
+
+## Descripción
+
+El proyecto Brick-Land es una iniciativa para facilitar la inversión en propiedades de pozo en la Ciudad Autónoma de Buenos Aires (Capital Federal). Proporciona una plataforma integral que combina acceso a una base de datos detallada de propiedades, documentación curada sobre el proceso de inversión, y un modelo de lenguaje avanzado capaz de responder preguntas específicas sobre las zonas de interés, ubicaciones de los inmuebles, cercanía a servicios esenciales y más.
+
+## Características Principales
+
+- **Base de Datos de Propiedades**: Acceso a una extensa base de datos con propiedades disponibles para compra en emprendimientos de pozo.
+- **Documentación Curada**: Artículos y guías que discuten las ventajas y desventajas de la inversión en pozo, consejos prácticos y errores comunes a evitar.
+- **Modelo de Lenguaje Inteligente**: Capacidad para realizar consultas específicas sobre las propiedades y sus alrededores, utilizando un modelo de lenguaje avanzado.
+
+## Cómo Empezar
+
+Para comenzar a utilizar el proyecto Brick-Land, siga estos pasos:
+
+1. Clone el repositorio en su máquina local.
+2. Asegúrese de tener Python instalado y configure un entorno virtual utilizando `.venv`.
+3. Instale las dependencias necesarias ejecutando `pip install -r requirements.txt`.
+4. Ejecute la aplicación principal para comenzar a explorar las propiedades y recursos disponibles.
+
+## Contribuir
+
+Si está interesado en contribuir al proyecto Brick-Land, por favor lea nuestra guía de contribución. Buscamos ayuda con la mejora de la base de datos, la curación de contenido y el desarrollo de nuevas funcionalidades para el modelo de lenguaje.
+
+## Licencia
+
+El proyecto Brick-Land está licenciado bajo [MIT License](LICENSE).
+
+## Contacto
+
+Para más información o preguntas sobre el proyecto, por favor contacte a [info@brick-land.com](mailto:info@brick-land.com).
+
+Gracias por su interés en el proyecto Brick-Land. ¡Esperamos que encuentre valiosa esta herramienta para sus inversiones en propiedades de pozo!
