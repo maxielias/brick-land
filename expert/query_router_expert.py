@@ -63,13 +63,13 @@ class QueryRouter:
         return self.query_router.invoke({"question": question})
 
 
-if __name__ == "__main__":
-    question = "Sugerime un departamento en Palermo de 2 ambientes con pileta y parrilla. \
-        Me conviene comprar si no conozco a la desarrolladora inmobiliaria? Es segura la zona?"
-    query_analyzer = QueryAnalyzer()
-    query_router = QueryRouter()
-    queries = query_analyzer.analyze_query(question)
-    print(queries)
-    response = query_analyzer.transform_queries_to_string(queries=queries)
-    data_sources = query_router.analyze_query(response)
-    print(data_sources)
+# if __name__ == "__main__":
+#     question = "Sugerime un departamento en Palermo de 2 ambientes con pileta y parrilla. \
+#         Me conviene comprar si no conozco a la desarrolladora inmobiliaria? Es segura la zona?"
+#     query_analyzer = QueryAnalyzer()
+#     query_router = QueryRouter()
+#     queries = query_analyzer.analyze_query(question)
+#     print(queries)
+#     response = query_analyzer.transform_queries_to_string(queries=queries)
+#     data_sources = query_router.analyze_query(response)
+#     print(data_sources)
