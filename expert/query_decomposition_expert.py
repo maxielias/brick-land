@@ -4,6 +4,7 @@ from langchain.output_parsers import PydanticToolsParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.pydantic_v1 import BaseModel, Field
+from typing import List, Literal
 
 
 class SubQuery(BaseModel):
@@ -83,10 +84,16 @@ class QueryAnalyzer:
 
     def analyze_query(self, question):
         return self.query_analyzer.invoke({"question": question})
+    
+    def transform_queries_to_string(self, queries: List[SubQuery]) -> str:
+        return "\n".join(query.decomposition_query for query in queries)
 
 
 # if __name__ == "__main__":
 #     analyzer = QueryAnalyzer()
 #     question = "¿Cuáles son las ventajas y desventajas de comprar un departamento de pozo?"
-#     response = analyzer.analyze_query(question)
+#     queries = analyzer.analyze_query(question)
+#     print(queries)
+#     response = analyzer.transform_queries_to_string(queries=queries)
 #     print(response)
+
