@@ -37,7 +37,7 @@ class TableSchemaExpert:
         self.db.connect()
 
     def fetch_data_from_table(self):
-        query = f"SELECT * FROM {self.table} LIMIT 1;"  # Fetch only the first row
+        query = f"SELECT * FROM {self.table} LIMIT 1;"
         self.db.cursor.execute(query)
         rows = self.db.cursor.fetchall()
         colnames = [desc[0] for desc in self.db.cursor.description]
