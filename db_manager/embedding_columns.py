@@ -30,6 +30,14 @@ class DescriptionEmbedder:
             openai.api_key = os.environ['OPENAI_API_KEY']
         else:
             raise ValueError("embedding_method should be 'sentence_transformer' or 'openai'")
+    
+    def load_environment_variables(self, env_path):
+        load_dotenv(env_path)
+        os.environ['LANGCHAIN_TRACING_V2'] = os.getenv('LANGCHAIN_TRACING_V2')
+        os.environ['LANGCHAIN_ENDPOINT'] = os.getenv('LANGCHAIN_ENDPOINT')
+        os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
+        os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+        os.environ['LANGCHAIN_PROJECT'] = os.getenv('LANGCHAIN_PROJECT')
 
     def connect(self):
         db = PostgresDB(dbname=self.dbname)
@@ -101,9 +109,9 @@ class DescriptionEmbedder:
 
 # Usage example
 if __name__ == '__main__':
-    
     description_embedder = DescriptionEmbedder(dbname='brickland', table='properties',
                                                embedding_method='sentence_transformer')
+    description_embedder.load_environment_variables('.env')
     description_embedder.connect()
     description_embedder.run()
     description_embedder.close()
