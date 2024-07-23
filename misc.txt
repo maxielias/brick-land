@@ -1,2 +1,15 @@
 pip freeze > requirements.txt
 Para instalar pgvector hay que utilizar las x64 Native Build Tools con derechos de adminstrador
+Get table schema:
+"""
+SELECT
+      column_name,
+      data_type,
+      character_maximum_length,
+      column_default,
+      is_nullable
+FROM
+      information_schema.columns
+WHERE
+      table_name = 'users';
+      """

@@ -1,10 +1,11 @@
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
-from psycopg2 import sql 
 import openai
 import os
 from dotenv import load_dotenv
 from db_connection import PostgresDB
+import numpy as np
+from psycopg2 import sql
 
 # Load environment variables
 load_dotenv('.venv/.env')
@@ -59,21 +60,33 @@ class DescriptionEmbedder:
             embeddings = [openai.Embedding.create(input=desc, model='text-embedding-ada-002')['data'][0]['embedding'] for desc in descriptions]
         return embeddings
 
-    def ensure_column_exists(self, table=None):
+    def ensure_column_exists(self, table=None, embedding_dim=384):  # Default to 384 for 'all-MiniLM-L6-v2'
         if table is None:
             table = self.table
-        self.cursor.execute(f'''
-            ALTER TABLE {table} 
-            ADD COLUMN IF NOT EXISTS description_embeddings VECTOR(1536);  -- Change 1536 to the appropriate dimension
-        ''')
+        # Drop the column if it exists
+        self.cursor.execute(
+            sql.SQL('''
+                ALTER TABLE {} 
+                DROP COLUMN IF EXISTS description_embeddings
+            ''').format(sql.Identifier(table))
+        )
+        # Create the column as a vector
+        self.cursor.execute(
+            sql.SQL('''
+                ALTER TABLE {} 
+                ADD COLUMN description_embeddings vector(%s)
+            ''').format(sql.Identifier(table)),
+            [embedding_dim]
+        )
         self.conn.commit()
 
     def update_table_with_embeddings(self, index_list, embeddings):
         for idx, embedding in tqdm(zip(index_list, embeddings), total=len(index_list)):
-            embedding_str = ','.join(map(str, embedding))
+            # Convert numpy array to list
+            embedding_list = embedding.tolist()
             self.cursor.execute(
                 sql.SQL('UPDATE {} SET description_embeddings = %s WHERE prop_url = %s').format(sql.Identifier(self.table)),
-                (embedding_str, idx)
+                (embedding_list, idx)
             )
         self.conn.commit()
 
