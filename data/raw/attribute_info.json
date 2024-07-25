@@ -76,7 +76,7 @@
     },
     {
         "name": "description_embeddings",
-        "description": "This column contains the description embeddings, which are numerical representations of the property description text. These embeddings are used for machine learning tasks, such as property recommendation systems.",
+        "description": "This column contains the description embeddings, which are numerical representations of the property and project description text. These embeddings are used for machine learning tasks, such as property recommendation systems.",
         "type": "list"
     }
 ]

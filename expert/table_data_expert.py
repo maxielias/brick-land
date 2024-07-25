@@ -44,18 +44,19 @@ class TableSchemaExpert:
         dataframe = pd.DataFrame(rows, columns=colnames)
         return dataframe
 
-    def describe_data_attributes(self, dataframe):
-        dataframe_head = dataframe.head(1).to_json(orient='records')  # Ensure we are processing only the first row
+    def describe_data_attributes(self, df):
+        df_head = df.head(1).to_json(orient='records')
         prompt = (
-            "Below is a table with information about hotel rooms. "
+            "Below is a table with information about real state projects and the properties they have on sale."
+            "Each project may be listing more than one apartment, so the table has for each propert the data"
+            "about the project it belongs to."
             "Return a JSON list with an entry for each column."
-            "Below is a table with information about hotel rooms.\n"
             "Provide a description that also adds specific details about the data, taking into account "
             "that it's a database about real state projects with their properties." 
             "Specially for the description columns, provide a detailed explanation of the data.\n"
             "Each entry should have "
             '{"name": "column name", "description": "column description", "type": "column data type"}'
-            f"\n\n{dataframe_head}\n\nJSON:\n"
+            f"\n\n{df_head}\n\nJSON:\n"
         )
         res = self.model.predict(prompt)
         attribute_info = json.loads(res)
