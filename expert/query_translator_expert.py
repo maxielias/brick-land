@@ -28,7 +28,7 @@ class QueryTranslator:
             self.engine = create_engine(f'sqlite:///{self.dbname}')
             self.metadata = MetaData()
             self.metadata.reflect(bind=self.engine)
-            self.db = SQLDatabase(engine=self.engine)  # Create SQLDatabase object
+            self.db = SQLDatabase(engine=self.engine)
             print(f"Connection to SQLite database '{self.dbname}' established")
         except Exception as error:
             print(f"Error while connecting to SQLite: {error}")
@@ -41,9 +41,9 @@ class QueryTranslator:
             print("SQLite connection is closed")
 
     def query_data(self, question):
-        llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        llm = OpenAI(model='gpt-4o-mini', api_key=os.getenv('OPENAI_API_KEY'))
         chain = create_sql_query_chain(llm=llm, db=self.db)
-        response = chain.invoke({"question": question})
+        response = chain.invoke( {"question": question})
         return response
 
 # # Usage example

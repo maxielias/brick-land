@@ -1,82 +1,77 @@
 [
     {
         "name": "prop_url",
-        "description": "This column contains the URL of the property listing. It provides a direct link to the online listing of the real estate property.",
+        "description": "This is the property URL where the apartment listing can be viewed online. It contains specific details about the property.",
         "type": "string"
     },
     {
         "name": "prop_address",
-        "description": "This column contains the address of the property. It gives the specific location details of the property.",
+        "description": "This is the specific address of the property. It includes the street name and street number.",
         "type": "string"
     },
     {
         "name": "prop_floor",
-        "description": "This column indicates the floor on which the property is located, if it's part of a multi-story building.",
+        "description": "This indicates the floor on which the apartment is located.",
         "type": "string"
     },
     {
         "name": "prop_price",
-        "description": "This column contains the price of the property. It is expressed in USD and gives the monetary value of the property.",
+        "description": "This is the listed price of the property in USD.",
         "type": "string"
     },
     {
         "name": "prop_m2",
-        "description": "This column displays the size of the property in square meters. It provides a measure of the total area of the property.",
+        "description": "This is the size of the property in square meters.",
         "type": "string"
     },
     {
         "name": "prop_rooms",
-        "description": "This column contains the total number of rooms in the property. It gives an indication of the size and capacity of the property.",
+        "description": "This is the number of rooms in the apartment.",
         "type": "string"
     },
     {
         "name": "prop_bedrooms",
-        "description": "This column shows the number of bedrooms in the property. It provides an idea about the sleeping arrangements and capacity of the property.",
+        "description": "This is the number of bedrooms in the apartment.",
         "type": "string"
     },
     {
         "name": "prop_location",
-        "description": "This column gives the general location of the property, typically the city or neighborhood. It helps to identify the property's location at a broader level.",
+        "description": "This is the location of the property, including the neighborhood and city.",
         "type": "string"
     },
     {
         "name": "prop_description",
-        "description": "This column contains a detailed description of the property. It provides information about the property's features, amenities, design, and any unique characteristics. It may also include details about the surrounding area, the property's history, and any future potential.",
+        "description": "This is a detailed description of the property, providing information about its features and amenities. It may include information on the property's layout, available utilities, interior details, and other features such as a balcony or patio.",
         "type": "string"
     },
     {
         "name": "prop_images",
-        "description": "This column contains URLs of images of the property. The images provide a visual representation of the property and its features.",
-        "type": "list"
+        "description": "This is a list of URLs for images of the property. These images provide a visual representation of the property, its rooms, and its features.",
+        "type": "string"
     },
     {
         "name": "project_url",
-        "description": "This column contains the URL of the real estate project associated with the property. It provides a direct link to the online listing of the project.",
+        "description": "This is the URL where the real estate project can be viewed online. It contains specific details about the project.",
         "type": "string"
     },
     {
         "name": "project_district",
-        "description": "This column contains the district where the real estate project is located. It helps to identify the broader location of the project.",
+        "description": "This is the district in which the project is located.",
         "type": "string"
     },
     {
         "name": "project_address",
-        "description": "This column contains the specific address of the real estate project. It provides detailed location information about the project.",
+        "description": "This is the specific address of the real estate project. It includes the building name or number.",
         "type": "string"
     },
     {
         "name": "project_description",
-        "description": "This column contains a detailed description of the real estate project. It provides information about the project's features, amenities, design, timeline, and any unique characteristics.",
+        "description": "This is a detailed description of the real estate project, providing information about its features and amenities. It may include information on the state of the project, the number of bedrooms in the apartments, financing options, prices, and other relevant details.",
         "type": "string"
     },
     {
         "name": "project_images",
-        "description": "This column contains URLs of images related to the real estate project. The images provide a visual representation of the project and its features.",
-        "type": "list"
-    },
-    {
-        "name": "description_embeddings",
-        "description": "This column contains the description embeddings, which are numerical representations of the property and project description text. These embeddings are used for machine learning tasks, such as property recommendation systems.",
-        "type": "list"
+        "description": "This is a list of URLs for images of the real estate project. These images provide a visual representation of the project and its features.",
+        "type": "string"
     }
 ]

@@ -21,7 +21,7 @@ class Router(BaseModel):
     """
     datasource: List[Literal["properties_table", "pdf_docs", "llm_expertise"]] = Field(
         ...,
-        description="Dada la pregunta del usuario elegir las fuentes de datos más relevantes en orden de importancia.",
+        description="Dada la pregunta del usuario elegir las fuentes de datos más indicadas para responder la pregunta.",
     )
 
 
@@ -38,7 +38,16 @@ class QueryRouter:
             2) Tienes acceso a documentación curada sobre artículos donde se analizan las ventajas y desventajas de comprar de pozo \
             como también se dan consejos sobre como actuar para llevar a cabo la inversión y que errores evitar cometer.
             3) Tienes acceso al modelo de lenguaje que puede responder preguntas sobre la zona donde se encuentra el emprendimiento, \
-            sobre la ubicación del inmueble, el barrio, la cercanía a medios de transporte, colegios, etc. \
+            sobre la ubicación del inmueble, el barrio, la cercanía a medios de transporte, colegios, parques, etc. \
+            En caso de que la pregunta no se refiera específicamente a la descripción de un inmueble, \
+            o datos particulares del proyecto (precio, dirección, piso, servicios comunes, ammenities, financiación específica que ofrece ese proyecto o inmueble), \
+            o conjunto de proyectos o inmuebles que devuelva al experto, no incluir la fuente de datos de la base de datos. \
+            Por Ejemplo: \
+            - ¿Cuáles son las ventajas y desventajas de comprar un departamento de pozo en Palermo? \
+            - ¿Es seguro el barrio de Palermo? \
+            - ¿Cuál es la cercanía a medios de transporte en Palermo? \
+            - ¿Cuál es la cercanía de los departamentos de 2 ambientes en Palermo a medios de transporte y colegios?
+            - ¿Como se paga un departamento de pozo?
             En caso de no encontrar una fuente de datos relevante, se proporcionará una respuesta vacía.
         """
         self.prompt = ChatPromptTemplate.from_messages(
@@ -47,7 +56,7 @@ class QueryRouter:
                 ("human", "{question}"),
             ]
         )
-        self.llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
         self.structured_llm = self.llm.with_structured_output(Router)
         self.query_router = self.prompt | self.structured_llm
 

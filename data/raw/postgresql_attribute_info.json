@@ -1,0 +1,82 @@
+[
+    {
+        "name": "prop_url",
+        "description": "This column contains the URL of the property listing. It provides a direct link to the online listing of the real estate property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_address",
+        "description": "This column contains the address of the property. It gives the specific location details of the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_floor",
+        "description": "This column indicates the floor on which the property is located, if it's part of a multi-story building.",
+        "type": "string"
+    },
+    {
+        "name": "prop_price",
+        "description": "This column contains the price of the property. It is expressed in USD and gives the monetary value of the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_m2",
+        "description": "This column displays the size of the property in square meters. It provides a measure of the total area of the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_rooms",
+        "description": "This column contains the total number of rooms in the property. It gives an indication of the size and capacity of the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_bedrooms",
+        "description": "This column shows the number of bedrooms in the property. It provides an idea about the sleeping arrangements and capacity of the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_location",
+        "description": "This column gives the general location of the property, typically the city or neighborhood. It helps to identify the property's location at a broader level.",
+        "type": "string"
+    },
+    {
+        "name": "prop_description",
+        "description": "This column contains a detailed description of the property. It provides information about the property's features, amenities, design, and any unique characteristics. It may also include details about the surrounding area, the property's history, and any future potential.",
+        "type": "string"
+    },
+    {
+        "name": "prop_images",
+        "description": "This column contains URLs of images of the property. The images provide a visual representation of the property and its features.",
+        "type": "list"
+    },
+    {
+        "name": "project_url",
+        "description": "This column contains the URL of the real estate project associated with the property. It provides a direct link to the online listing of the project.",
+        "type": "string"
+    },
+    {
+        "name": "project_district",
+        "description": "This column contains the district where the real estate project is located. It helps to identify the broader location of the project.",
+        "type": "string"
+    },
+    {
+        "name": "project_address",
+        "description": "This column contains the specific address of the real estate project. It provides detailed location information about the project.",
+        "type": "string"
+    },
+    {
+        "name": "project_description",
+        "description": "This column contains a detailed description of the real estate project. It provides information about the project's features, amenities, design, timeline, and any unique characteristics.",
+        "type": "string"
+    },
+    {
+        "name": "project_images",
+        "description": "This column contains URLs of images related to the real estate project. The images provide a visual representation of the project and its features.",
+        "type": "list"
+    },
+    {
+        "name": "description_embeddings",
+        "description": "This column contains the description embeddings, which are numerical representations of the property and project description text. These embeddings are used for machine learning tasks, such as property recommendation systems.",
+        "type": "list"
+    }
+]

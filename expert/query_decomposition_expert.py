@@ -69,7 +69,7 @@ class QueryAnalyzer:
                 ("human", "{question}"),
             ]
         )
-        self.llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
         self.llm_with_tools = self.llm.bind_tools([SubQuery])
         self.parser = PydanticToolsParser(tools=[SubQuery])
         self.query_analyzer = self.prompt | self.llm_with_tools | self.parser
