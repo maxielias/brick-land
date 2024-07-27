@@ -25,10 +25,12 @@ class PropDbViewer:
             self.conn.close()
             print("SQLite connection is closed")
 
-    def view_data(self):
+    def view_data(self, table=None):
+        if table:
+            self.table = table
         if self.cursor:
             try:
-                self.cursor.execute(f"SELECT * FROM {self.table}")
+                self.cursor.execute(f"SELECT * FROM {self.table} LIMIT 5")
                 rows = self.cursor.fetchall()
                 if rows:
                     for row in rows:
@@ -44,6 +46,7 @@ if __name__ == '__main__':
     try:
         prop_db_viewer.connect()
         prop_db_viewer.view_data()
+        prop_db_viewer.view_data(table='prop_images_href')
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:

@@ -8,6 +8,7 @@ class PropDb:
         os.makedirs(self.db_path, exist_ok=True)
         self.dbname = os.path.join(self.db_path, dbname)
         self.table = table
+        self.images_table = 'prop_images_href'
         self.conn = None
         self.cursor = None
         print(f"Database path: {self.dbname}")
@@ -29,11 +30,9 @@ class PropDb:
             self.conn.close()
             print("SQLite connection is closed")
 
-    def create_table(self, table=None):
-        if table is None:
-            table = self.table
+    def create_tables(self):
         self.cursor.execute(f'''
-        CREATE TABLE IF NOT EXISTS {table} (
+        CREATE TABLE IF NOT EXISTS {self.table} (
             prop_url TEXT PRIMARY KEY,
             prop_address TEXT,
             prop_floor TEXT,
@@ -43,12 +42,21 @@ class PropDb:
             prop_bedrooms TEXT,
             prop_location TEXT,
             prop_description TEXT,
-            prop_images TEXT,
             project_url TEXT,
             project_district TEXT,
             project_address TEXT,
-            project_description TEXT,
-            project_images TEXT
+            project_description TEXT
+        )
+        ''')
+        
+        self.cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS {self.images_table} (
+            prop_url TEXT,
+            project_url TEXT,
+            prop_images TEXT,
+            project_images TEXT,
+            FOREIGN KEY(prop_url) REFERENCES {self.table}(prop_url),
+            FOREIGN KEY(project_url) REFERENCES {self.table}(project_url)
         )
         ''')
         self.conn.commit()
@@ -60,7 +68,6 @@ class PropDb:
         return self.cursor.fetchone() is not None
 
     def insert_or_update_property(self, project_data, prop_data, table=None):
-        
         if table is None:
             table = self.table
         if prop_data is None:
@@ -75,11 +82,16 @@ class PropDb:
             str(prop_data.get('prop_bedrooms', 'nan')),
             prop_data.get('prop_location', ''),
             prop_data.get('prop_description', 'nan'),
-            json.dumps(prop_data.get('prop_images', []), ensure_ascii=False),
             project_data.get('project_url', ''),
             project_data.get('project_district', ''),
             project_data.get('project_address', ''),
-            project_data.get('project_description', ''),
+            project_data.get('project_description', '')
+        )
+
+        image_parameters = (
+            prop_data.get('prop_url'),
+            project_data.get('project_url', ''),
+            json.dumps(prop_data.get('prop_images', []), ensure_ascii=False),
             json.dumps(project_data.get('project_images', []), ensure_ascii=False)
         )
 
@@ -87,35 +99,31 @@ class PropDb:
             self.cursor.execute(f'''
             UPDATE {table}
             SET prop_address = ?, prop_floor = ?, prop_price = ?, prop_m2 = ?, prop_rooms = ?, 
-                prop_bedrooms = ?, prop_location = ?, prop_description = ?, prop_images = ?, 
+                prop_bedrooms = ?, prop_location = ?, prop_description = ?, 
                 project_url = ?, project_district = ?, project_address = ?, 
-                project_description = ?, project_images = ?
+                project_description = ?
             WHERE prop_url = ?
-            ''', (
-                prop_data['prop_address'],
-                prop_data['prop_floor'],
-                prop_data['prop_price'],
-                str(prop_data['prop_m2']),
-                str(prop_data['prop_rooms']),
-                str(prop_data['prop_bedrooms']),
-                prop_data['prop_location'],
-                prop_data['prop_description'] if prop_data['prop_description'] else 'nan',
-                json.dumps(prop_data['prop_images'], ensure_ascii=False),
-                project_data['project_url'],
-                project_data['project_district'],
-                project_data['project_address'],
-                project_data['project_description'],
-                json.dumps(project_data['project_images'], ensure_ascii=False),
-                prop_data['prop_url']
-            ))
+            ''', parameters)
+            
+            self.cursor.execute(f'''
+            UPDATE {self.images_table}
+            SET project_url = ?, prop_images = ?, project_images = ?
+            WHERE prop_url = ?
+            ''', image_parameters)
         else:
             self.cursor.execute(f'''
             INSERT INTO {table} (
                 prop_url, prop_address, prop_floor, prop_price, prop_m2, prop_rooms, prop_bedrooms,
-                prop_location, prop_description, prop_images, project_url, project_district,
-                project_address, project_description, project_images
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                prop_location, prop_description, project_url, project_district,
+                project_address, project_description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', parameters)
+            
+            self.cursor.execute(f'''
+            INSERT INTO {self.images_table} (
+                prop_url, project_url, prop_images, project_images
+            ) VALUES (?, ?, ?, ?)
+            ''', image_parameters)
         self.conn.commit()
 
     def import_data(self, json_data, table=None):
@@ -129,7 +137,7 @@ if __name__ == '__main__':
     prop_db = PropDb(dbname='brickland.db')
     try:
         prop_db.connect()
-        prop_db.create_table()
+        prop_db.create_tables()
 
         with open(json_file_path, 'r', encoding='utf-8') as f:
             json_data = json.load(f)

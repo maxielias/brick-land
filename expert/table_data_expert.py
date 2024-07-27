@@ -9,8 +9,10 @@ from sentence_transformers import SentenceTransformer
 import openai
 
 class TableSchemaExpert:
-    def __init__(self, db_path, table, model_name="gpt-4o-mini", embedding_method='sentence_transformer', embeddings_model='all-MiniLM-L6-v2'):
+    def __init__(self, db_path='data/db', dbname='brickland.db', table='properties', model_name="gpt-4o-mini", embedding_method='sentence_transformer', embeddings_model='all-MiniLM-L6-v2'):
         self.db_path = db_path
+        self.dbname = dbname
+        self.full_db_path = os.path.join(self.db_path, self.dbname)
         self.table = table
         self.model = None
         self.model_name = model_name
@@ -35,16 +37,15 @@ class TableSchemaExpert:
         os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
         os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
         os.environ['LANGCHAIN_PROJECT'] = os.getenv('LANGCHAIN_PROJECT')
-        # Ensure the API key is loaded
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
 
     def connect_to_database(self):
         try:
-            self.engine = create_engine(f'sqlite:///{self.db_path}')
+            self.engine = create_engine(f'sqlite:///{self.full_db_path}')
             self.conn = self.engine.connect()
             self.metadata = MetaData()
             self.metadata.reflect(bind=self.engine)
-            print(f"Connected to SQLite database at '{self.db_path}'")
+            print(f"Connected to SQLite database at '{self.full_db_path}'")
         except Exception as error:
             print(f"Error while connecting to SQLite: {error}")
             self.conn = None
@@ -70,7 +71,7 @@ class TableSchemaExpert:
             f"\n\n{df_head}\n\nJSON:\n"
         )
         self.model = ChatOpenAI(model=self.model_name, openai_api_key=self.openai_api_key)
-        res = self.model.predict(prompt)
+        res = self.model.invoke(prompt)
         attribute_info = json.loads(res)
         print(prompt)
         return attribute_info
@@ -84,9 +85,7 @@ class TableSchemaExpert:
             self.conn.close()
             print("SQLite connection is closed")
 
-    def create_and_save_table_schema(self, db_path='data/db/brickland.db', table='properties'):
-        self.db_path = db_path
-        self.table = table
+    def create_and_save_table_schema(self):
         self.load_environment_variables('.venv/.env')
         self.connect_to_database()
         latest_data = self.fetch_data_from_table()
@@ -94,10 +93,11 @@ class TableSchemaExpert:
         self.save_data_as_json(attribute_info, 'data/raw/attribute_info.json')
         self.close_database_connection()
 
-# # Example usage:
+# Example usage:
 # if __name__ == "__main__":
-#     db_path = 'data/db/brickland.db'
-#     expert = TableSchemaExpert(db_path=db_path, table="properties", embedding_method='sentence_transformer')
+#     db_path = 'data/db'
+#     dbname = 'brickland.db'
+#     expert = TableSchemaExpert(db_path=db_path, dbname=dbname, table="properties", embedding_method='sentence_transformer')
 #     expert.load_environment_variables('.venv/.env')
 
 #     expert.connect_to_database()
@@ -106,6 +106,5 @@ class TableSchemaExpert:
 #     attribute_info = expert.describe_data_attributes(latest_data)
 #     print(attribute_info)
 
-    # expert.save_data_as_json(attribute_info, 'data/raw/attribute_info.json')
-    # expert.close_database_connection()
- 
+#     expert.save_data_as_json(attribute_info, 'data/raw/attribute_info.json')
+#     expert.close_database_connection()

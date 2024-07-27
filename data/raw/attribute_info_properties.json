@@ -1,0 +1,67 @@
+[
+    {
+        "name": "prop_url",
+        "description": "This is the property URL where the apartment listing can be viewed online. It contains specific details about the property.",
+        "type": "string"
+    },
+    {
+        "name": "prop_address",
+        "description": "This is the specific address of the property. It includes the street name and street number.",
+        "type": "string"
+    },
+    {
+        "name": "prop_floor",
+        "description": "This indicates the floor on which the apartment is located.",
+        "type": "string"
+    },
+    {
+        "name": "prop_price",
+        "description": "This is the listed price of the property in USD.",
+        "type": "string"
+    },
+    {
+        "name": "prop_m2",
+        "description": "This is the size of the property in square meters.",
+        "type": "string"
+    },
+    {
+        "name": "prop_rooms",
+        "description": "This is the number of rooms in the apartment.",
+        "type": "string"
+    },
+    {
+        "name": "prop_bedrooms",
+        "description": "This is the number of bedrooms in the apartment.",
+        "type": "string"
+    },
+    {
+        "name": "prop_location",
+        "description": "This is the location of the property, including the neighborhood and city.",
+        "type": "string"
+    },
+    {
+        "name": "prop_description",
+        "description": "This is a detailed description of the property, providing information about its features and amenities. It may include information on the property's layout, available utilities, interior details, and other features such as a balcony or patio.",
+        "type": "string"
+    },
+    {
+        "name": "project_url",
+        "description": "This is the URL where the real estate project can be viewed online. It contains specific details about the project.",
+        "type": "string"
+    },
+    {
+        "name": "project_district",
+        "description": "This is the district in which the project is located.",
+        "type": "string"
+    },
+    {
+        "name": "project_address",
+        "description": "This is the specific address of the real estate project. It includes the building name or number.",
+        "type": "string"
+    },
+    {
+        "name": "project_description",
+        "description": "This is a detailed description of the real estate project, providing information about its features and amenities. It may include information on the state of the project, the number of bedrooms in the apartments, financing options, prices, and other relevant details.",
+        "type": "string"
+    }
+]

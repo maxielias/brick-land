@@ -4,16 +4,20 @@ import json
 from query_decomposition_expert import QueryAnalyzer
 from query_router_expert import QueryRouter
 from query_translator_expert import QueryTranslator
-# from table_data_expert import TableSchemaExpert
+from query_agent import QueryAgent
+from langchain_openai import ChatOpenAI
 
 class ExpertAssistant:
     def __init__(self):
-        self.db_path = 'data/db/brickland.db'
+        self.db_path = 'data/db'
+        self.dbname = 'brickland.db'
         self.env_path = '.venv/.env'
         self.load_environment_variables(self.env_path)
         self.query_analyzer = QueryAnalyzer()
         self.query_router = QueryRouter()
         self.query_translator = QueryTranslator()
+        self.query_agent = QueryAgent(db_path=self.db_path, dbname=self.dbname)  # Initialize the QueryAgent
+        self.llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         # self.table_data_expert = TableSchemaExpert()
 
     def load_environment_variables(self, env_path):
@@ -28,6 +32,10 @@ class ExpertAssistant:
         sub_queries = self.query_analyzer.analyze_query(user_query)
         return sub_queries
     
+    def get_transformed_question(self, sub_queries):
+        transformed_question = self.query_analyzer.transform_queries_to_string(sub_queries)
+        return transformed_question
+    
     def query_source(self, sub_queries):
         query_source_list = []
         for sub_query in sub_queries:
@@ -36,47 +44,76 @@ class ExpertAssistant:
         return query_source_list
 
     def load_schema(self, query_source_list):
-        if any(e for e in [item for sublist in [d['source'].datasource for d in list_of_sources] 
+        if any(e for e in [item for sublist in [d['source'].datasource for d in query_source_list] 
                            for item in sublist] if 'properties_table' in e):
             try:
-                with open('data/raw/attribute_info.json', 'r') as json_file:
+                with open('data/raw/attribute_info_properties.json', 'r') as json_file:
                     table_metadata = json.load(json_file)
                 print("Found Table Schema Metadata")
                 return table_metadata
             except FileNotFoundError:
                 print("Table Schema Metadata Not Found")
                 return None
+            
+    def translate_query(self, query_source_list, table_schema):
+        translated_queries = []
+        if table_schema is None:
+            return None
+        for query in query_source_list:
+            if isinstance(query['source'].datasource, list):
+                cond_true = any(e for e in query['source'].datasource if 'properties_table' in e) 
+            if query['source'].datasource == 'properties_table' or cond_true:
+                sub_query = query['question'].decomposition_query
+                translated_query = self.query_translator.query_data(sub_query)
+                translated_queries.append(translated_query)
+        return translated_queries
 
-    def create_prompt(self, user_query):
+    def create_prompt(self, user_query, transformed_questions, translated_queries, query_results):
+        context = (
+        "You are an expert assistant in helping potential property buyers or investors, find a project or property that fits"
+        "their preferences. "
+        "You have access to a database of real state pojects in the following states: "
+        "pre-construction, to be finished within a few months or years, or brand new. "
+        "Each project may have several apartments or properties for sale. "
+        "All properties are located in Buenos Aires City (Ciudad Autónoma de Buenos Aires or Capital Federal)"
+        "For general purpose questions, not related to the speficifications of the project or propoerty, "
+        "there are curated documents about the advantages and disadvantages of buying such properties, advice about"
+        "buying off-plan, as well as advice on how to carry out the investment and what mistakes to avoid. "
+        "You can also answer questions about the area where the project is located, the location of the property, "
+        "the neighborhood, proximity to transportation, schools, etc."
+        )
+        template = (
+            f"Expert context:\n{context}\n\n"
+            f"Answer original question (in Spanish):\n{user_query}\n\n"
+            f"with the following translated question (in English):\n{user_query}\n\n"
+            f"Make use of decomposed questions:\n{transformed_questions}\n\n"
+            f"That will be translated into the following queries:\n{translated_queries}\n\n"
+            f"Query Results:\n{query_results}\n\n"
+            f"Answer the above questions with the provided information."
+            f"In case there are multiple properties that meet the criteria, provide a list including the url of the property and/or project."
+            f"Provide the answer in Spanish in the case of a question in English."
+            f"Remeber to provide the answer in a professional manner."
+            f"Merge the answers into a single response."
+        )
+        return template
+
+    def process_user_query(self, user_query):
         sub_queries = self.create_sub_questions(user_query)
-        self.process_user_query(sub_queries)
+        transformed_questions = self.get_transformed_question(sub_queries)
+        list_of_sources = self.query_source(sub_queries)
+        table_schema = self.load_schema(list_of_sources)
+        translated_queries = self.translate_query(list_of_sources, table_schema)
+        self.query_agent.connect()
+        query_results = self.query_agent.execute_queries(translated_queries)
+        self.query_agent.close()
 
-# Template for the expert assistant
-# template = """
-# Eres un asistente experto en ayudar a compradores o inversores de propiedades. Tienes acceso a una base de datos 
-# de propiedades de pozo en la Ciudad Autónoma de Buenos Aires (Capital Federal) y documentación curada sobre artículos 
-# donde se analizan las ventajas y desventajas de comprar de pozo, así como consejos sobre cómo llevar a cabo la inversión 
-# y qué errores evitar. También puedes responder preguntas sobre la zona donde se encuentra el emprendimiento, 
-# la ubicación del inmueble, el barrio, la cercanía a medios de transporte, colegios, etc. 
-
-# Dada una pregunta del usuario, desglósala en sub-preguntas distintas que necesitas responder para poder contestar 
-# la pregunta original. La descomposición debe ser en términos de:
-# 1) Preguntas específicas de un emprendimiento o departamento: Precio, m2 de un departamento, amenities (pileta, parrilla, sum, etc), 
-# servicios del inmueble o edificio y especificaciones del edificio, etc.
-# 2) Sugerencias generales sobre cómo comprar un departamento, ventajas y desventajas de comprar de pozo, 
-# cuestiones legales y costos relacionados a la compra. Por ejemplo: Los costos de escrituración, los plazos de entrega, 
-# los costos de mantenimiento, si es un fideicomiso al costo, si se puede comprar con crédito hipotecario, 
-# cómo suele ser la operatoria de compra, etc.
-# 3) Preguntas sobre la ubicación del inmueble, el barrio, la cercanía a medios de transporte, colegios, etc.
-
-# Toda la información es para la zona de Capital Federal, Argentina.
-# """
+        prompt = self.create_prompt(user_query, transformed_questions, translated_queries, query_results)
+        response = self.llm.predict(prompt)
+        return response
 
 if __name__ == '__main__':
     expert = ExpertAssistant()
-    user_query = "Estoy buscando un departamento en Palermo de 2 ambientes que salga menos de 200 mil dólares en una zona cerca al subte,"
-    "ofrece financiamiento?"
-    sub_queries = expert.create_sub_questions(user_query)
-    list_of_sources = expert.query_source(sub_queries)
-    table_schema = expert.load_schema(list_of_sources)
-    print(sub_queries, list_of_sources, table_schema, sep='\n')
+    user_query = ("Estoy buscando un departamento en Palermo de 2 ambientes que salga menos de 200 mil dólares "
+                  "en una zona cerca al subte, ofrece financiamiento?")
+    response = expert.process_user_query(user_query)
+    print(response)

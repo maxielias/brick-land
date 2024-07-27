@@ -1,0 +1,12 @@
+[
+    {
+        "name": "prop_images",
+        "description": "This is a list of URLs for images of the property. These images provide a visual representation of the property, its rooms, and its features.",
+        "type": "string"
+    },
+    {
+        "name": "project_images",
+        "description": "This is a list of URLs for images of the real estate project. These images provide a visual representation of the project and its features.",
+        "type": "string"
+    }
+]
