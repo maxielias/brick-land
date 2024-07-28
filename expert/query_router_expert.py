@@ -44,7 +44,7 @@ class QueryRouter:
             o conjunto de proyectos o inmuebles que devuelva al experto, no incluir la fuente de datos de la base de datos. \
             Por Ejemplo: \
             - ¿Cuáles son las ventajas y desventajas de comprar un departamento de pozo en Palermo? \
-            - ¿Es seguro el barrio de Palermo? \
+            - ¿Es seguro el barrio de Boedo? \
             - ¿Cuál es la cercanía a medios de transporte en Palermo? \
             - ¿Cuál es la cercanía de los departamentos de 2 ambientes en Palermo a medios de transporte y colegios?
             - ¿Como se paga un departamento de pozo?

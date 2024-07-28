@@ -28,18 +28,22 @@ class QueryAgent:
             # print("SQLite connection is closed")
 
     def execute_queries(self, queries):
-        results = []
-        for query in queries:
-            try:
-                # print(f"Executing query: {query}")
-                self.cursor.execute(query)
-                result = self.cursor.fetchall()
-                results.append(result)
-                # print(f"Query result: {result}")
-            except sqlite3.Error as error:
-                print(f"Error executing query '{query}': {error}")
-                results.append(None)
-        return results
+        try:
+            results = []
+            for query in queries:
+                try:
+                    # print(f"Executing query: {query}")
+                    self.cursor.execute(query)
+                    result = self.cursor.fetchall()
+                    results.append(result)
+                    # print(f"Query result: {result}")
+                except sqlite3.Error as error:
+                    print(f"Error executing query '{query}': {error}")
+                    results.append(None)
+            return results
+        except Exception as e:
+            print(f"No queries specific to specific project or properties")
+            return None
 
 # if __name__ == "__main__":
 #     query_agent = QueryAgent()

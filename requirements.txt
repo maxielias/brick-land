@@ -32,6 +32,7 @@ cycler==0.12.1
 dataclasses-json==0.6.7
 debugpy==1.8.2
 decorator==5.1.1
+deep-translator==1.11.4
 Deprecated==1.2.14
 distro==1.9.0
 dnspython==2.6.1
@@ -136,6 +137,8 @@ pycparser==2.22
 pydantic==2.8.2
 pydantic_core==2.20.1
 Pygments==2.18.0
+PyMuPDF==1.24.9
+PyMuPDFb==1.24.9
 pyparsing==3.1.2
 PyPika==0.48.9
 pyproject_hooks==1.1.0

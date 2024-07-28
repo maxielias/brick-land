@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 from langchain.chains import create_sql_query_chain
-from langchain_openai import OpenAI  # Ensure you have the correct LLM setup for LangChain
-from langchain_community.utilities import SQLDatabase  # Import the correct utility from langchain_community
+from langchain_openai import OpenAI
+from langchain_community.utilities import SQLDatabase
 import json
 
 class QueryTranslator:
@@ -50,6 +50,7 @@ class QueryTranslator:
             f"Generate the SQL query based on the user question and the table schema. Use functions like CAST to convert data types if necessary, wherever you need to extract a value from a string. Use LIKE to match a pattern in a string column rather than finding the exact value, for example in searching for a location or a name.\n"
             f"If the user does not provide a specific value, it does not matter, but remember to bring a limit of 5.\n"
             f"Always return the prop_url and project_url columns in the query, as they are essential for the user to access the property and the project information.\n"
+            f"Always return prop_description and project_description columns in the query, as they are essential for the user to understand the property and the project.\n"
             f"For the price, if it's 'nan', assume average price of properties with similar location, rooms and floor, else average of properties selected in the query, but do not change the 'nan' value in the database."
         )
 
