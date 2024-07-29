@@ -10,18 +10,15 @@ from query_decomposition_expert import QueryAnalyzer
 
 class Router(BaseModel):
     """
-    Existen tres grandes fuentes de datos:
-    1) Tienes acceso a una base de datos de propiedades de pozo.
-    2) Tienes acceso a documentación curada sobre artículos donde se analizan las ventajas y desventajas de comprar de pozo \
-    como también se dan consejos sobre como actuar para llevar a cabo la inversión y que errores evitar cometer.
-    3) Tienes acceso al modelo de lenguaje que puede responder preguntas sobre la zona donde se encuentra el emprendimiento, \
-    sobre la ubicación del inmueble, el barrio, la cercanía a medios de transporte, colegios, etc. \
-    La información en la base de datos sobre inmuebles para comprar en emprendimientos de pozo \
-    en la Ciudad Autónoma de Buenos Aires (Capital Federal).
+    There are three main sources of data:
+    1) You have access to a database of properties under construction, just finished, or about to be constructed, or pre-sale.
+    2) You have access to curated documentation on articles that analyze the advantages and disadvantages of buying properties under construction, as well as provide advice on how to proceed with the investment and what mistakes to avoid.
+    3) You have access to a language model and web search tools that can answer questions about the area where the development is located, including the location of the property, the neighborhood, proximity to transportation, schools, etc.
+    The information in the database is about properties available for purchase in developments under construction in the Autonomous City of Buenos Aires (Capital Federal).
     """
     datasource: List[Literal["properties_table", "pdf_docs", "llm_expertise"]] = Field(
         ...,
-        description="Dada la pregunta del usuario elegir las fuentes de datos más indicadas para responder la pregunta.",
+        description="Given the question from the user choose the most relevant data source to answer the question.",
     )
 
 
@@ -49,6 +46,23 @@ class QueryRouter:
             - ¿Cuál es la cercanía de los departamentos de 2 ambientes en Palermo a medios de transporte y colegios?
             - ¿Como se paga un departamento de pozo?
             En caso de no encontrar una fuente de datos relevante, se proporcionará una respuesta vacía.
+        """
+        """
+        He is an expert in deciding the best data sources for user questions.
+        If there is more than one question, they will be separated by "\n".
+        Client inquiries should be directed towards buying or investing in a development under construction (properties to be built, under construction, or newly built) for permanent residence or as a real estate investment.
+        There are three main sources of data:
+            1) You have access to a database of properties under construction.
+            2) You have access to curated documentation on articles that analyze the advantages and disadvantages of buying properties under construction, as well as provide advice on how to proceed with the investment and what mistakes to avoid.
+            3) You have access to a language model and web search agent that can answer questions about the area where the development is located, including the location of the property, the neighborhood, proximity to transportation, schools, parks, etc.
+        If the question does not specifically refer to the description of a property, or particular project data (price, address, floor, common services, amenities, specific financing offered by that project or property), or a set of projects or properties returned to the expert, do not include the database as a data source.
+        For Example:
+            - What are the advantages and disadvantages of buying an off-plan apartment in Palermo?
+            - Is the Boedo neighborhood safe?
+            - What is the proximity to transportation in Palermo?
+            - What is the proximity of 2-room apartments in Palermo to transportation and schools?
+            - How do you pay for an off-plan apartment?
+        If no relevant data source is found, an empty response will be provided.
         """
         self.prompt = ChatPromptTemplate.from_messages(
             [

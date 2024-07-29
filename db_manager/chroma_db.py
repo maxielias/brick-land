@@ -1,9 +1,10 @@
 import os
-import fitz  # PyMuPDF
+import fitz
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 
 class VectorDBManager:
@@ -12,7 +13,7 @@ class VectorDBManager:
         self.db_directory = db_directory
         self.chunk_size = chunk_size
         self.overlap_size = overlap_size
-        self.embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embedding_model = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
     
     def get_all_pdf_files(self, pdf_directory=None):
         if pdf_directory is None:

@@ -35,13 +35,17 @@ class KnowledgeCreator:
     
     def get_text_from_url(self, url):
         print(f"Scraping {url}")
-        url_request = self.browser.get(url).content
-        soup = BeautifulSoup(url_request, 'lxml')
-        paragraphs = soup.find_all('p')
-        article = '\n'.join([p.get_text() for p in paragraphs])
-        article = re.sub(r'\s+', ' ', article)
-        article = self.remove_emojis(article)
-        return article
+        try:
+            url_request = self.browser.get(url).content
+            soup = BeautifulSoup(url_request, 'lxml')
+            paragraphs = soup.find_all('p')
+            article = '\n'.join([p.get_text() for p in paragraphs])
+            article = re.sub(r'\s+', ' ', article)
+            article = self.remove_emojis(article)
+            return article
+        except Exception as e:
+            print(f"Error scraping url: {e}")
+            pass
     
     def remove_emojis(self, text):
         emoji_pattern = re.compile(
@@ -86,20 +90,17 @@ class KnowledgeCreator:
         for idx, article in enumerate(articles):
             url = article['url']
             article_text = article['article_text']
-
-            file_name = self.get_valid_file_name(url, idx)
-            
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_auto_page_break(auto=True, margin=15)
-            pdf.add_font(font, '', font_path, uni=True)
-            pdf.set_font(font, '', 14)
-            
-            pdf.multi_cell(0, 10, article_text)
-            
-            pdf_file_path = os.path.join(output_dir, f"{file_name}.pdf")
-            pdf.output(pdf_file_path)
-            print(f"Saved PDF: {pdf_file_path}")
+            if article_text is not None:
+                file_name = self.get_valid_file_name(url, idx)[0:20]
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                pdf.add_font(font, '', font_path, uni=True)
+                pdf.set_font(font, '', 14)
+                pdf.multi_cell(0, 10, article_text)
+                pdf_file_path = os.path.join(output_dir, f"{file_name}.pdf")
+                pdf.output(pdf_file_path)
+                print(f"Saved PDF: {pdf_file_path}")
     
     def get_valid_file_name(self, url, idx):
         try:
@@ -121,14 +122,12 @@ if __name__ == '__main__':
     unique_urls = knowledge_creator.create_unique_url_set(list_of_files=directory_paths)
     articles = knowledge_creator.create_article_dicts(list_of_files=directory_paths)
     
-    # Save articles to a text file
     output_file = 'data/raw/articles.txt'
     knowledge_creator.save_articles_to_file(articles, output_file)
 
     json_output_file = 'data/raw/json_articles.json'
     knowledge_creator.save_articles_to_json(articles, json_output_file)
 
-    # Save articles to PDF
     pdf_output_dir = 'data/processed/pdf_files'
     knowledge_creator.save_articles_to_pdf(articles, pdf_output_dir)
 

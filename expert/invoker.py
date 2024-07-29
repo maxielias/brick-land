@@ -9,6 +9,7 @@ from query_decomposition_expert import QueryAnalyzer
 from query_router_expert import QueryRouter
 from query_translator_expert import QueryTranslator
 from query_agent import QueryAgent
+from web_search_expert import WebSearchAgent
 from langchain_openai import ChatOpenAI
 
 class ExpertAssistant:
@@ -22,6 +23,7 @@ class ExpertAssistant:
         self.query_router = QueryRouter()
         self.query_translator = QueryTranslator()
         self.query_agent = QueryAgent(db_path=self.db_path, dbname=self.dbname)  # Initialize the QueryAgent
+        self.web_search_query = WebSearchAgent()
         self.llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         # self.table_data_expert = TableSchemaExpert()
 
@@ -94,9 +96,23 @@ class ExpertAssistant:
                     else:
                         general_advice_context.append(docs)
         return general_advice_context
+    
+    def web_search_query(self, query_source_list, more_context):
+        more_context = "Information should be based in Argentina, specifically Capital Federal, search should be donde in spanish for better results."
+        web_search_context = []
+        for query in query_source_list:
+            cond_true = False
+            if isinstance(query['source'].datasource, list):
+                cond_true = any(e for e in query['source'].datasource if 'llm_expertise' in e)
+            if query['source'].datasource == 'llm_expertise' or cond_true:
+                sub_query = query['question'].decomposition_query
+                for query in sub_query:
+                    web_search_result = self.web_search_agent.return_query_response(query, more_context)['output']
+                    web_search_context.append(web_search_result)
+        return web_search_context
 
     def create_prompt(self, user_query, transformed_questions, translated_queries, general_adivice_context,
-                      query_results):
+                      query_results, web_search_context):
         context = (
         "You are an expert assistant in helping potential property buyers or investors, find a project or property that fits"
         "their preferences. "
@@ -121,11 +137,15 @@ class ExpertAssistant:
             f"and/or if the question is not related to the specifications of the project or property, you can provide general advice.\n"
             f"If possible, create a list of all the key concepts and add important information keeping in mind the"
             f"General Advice Context:\n{general_adivice_context}\n\n"
+            f"In case the question is not related to the specifications of the project or property, or general advice, as in the general advice context.\n"
+            f"and the routing source is 'llm_expertise' you can use the Web Search Context:\n{web_search_context}\n\n"
+            f"If it's Empty or None use only LLM to generate the response to that specific question.\n"
             f"Answer the above questions with the provided information."
             f"In case there are multiple properties that meet the criteria, provide a list including the url of the property and/or project."
             f"Provide the answer in Spanish in the case of a question in English."
             f"Remeber to provide the answer in a professional manner."
             f"Merge the answers into a single response."
+            f"You can ask for further details to enhance your probabilities of returning a succesful response."
         )
         return template
 
@@ -148,7 +168,7 @@ class ExpertAssistant:
             query_results = "NO specific queries about a praticular project or property"
         prompt = self.create_prompt(user_query, transformed_questions, translated_queries, general_advice_context,
                       query_results)
-        response = self.llm.predict(prompt)
+        response = self.llm.invoke(prompt)
         return response
 
 if __name__ == '__main__':
