@@ -59,7 +59,8 @@ class QueryAnalyzer:
                 necesarios para responder a la pregunta específica. Se le preguntará acerca de los aspectos aclarados en el texto y en la estrategia \
                 de "query decomposition". \
             Cada estratefga se ejecutará de manera individual para generar una mayor de robustez en la respuesta.
-            Toda la información es para la zona de Capital Federal, Argentina.
+            Toda la información es para la zona de Capital Federal, Argentina. Siempre agregar información sobre la ubicación de los emprendimientos en cada pregunta sobre la zona urbana \
+            Por ejemplo: '¿Cómo es la ubicación del inmueble en relación a medios de transporte y colegios?' En ese caso agregar la zona, en caso de no haber específica, agregar capital federal.
             En caso de no poder responder a la pregunta devolver una pregunta más específica para que el cliente pueda responder o responder \
             "Mi conocimiento no me permite responder a esa pregunta en este momento".
         """

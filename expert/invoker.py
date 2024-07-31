@@ -2,9 +2,7 @@ import os
 from dotenv import load_dotenv
 import json
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings.sentence_transformer import (
-    SentenceTransformerEmbeddings,
-)
+from langchain_huggingface import HuggingFaceEmbeddings
 from query_decomposition_expert import QueryAnalyzer
 from query_router_expert import QueryRouter
 from query_translator_expert import QueryTranslator
@@ -18,13 +16,13 @@ class ExpertAssistant:
         self.dbname = 'brickland.db'
         self.env_path = '.venv/.env'
         self.load_environment_variables(self.env_path)
-        self.embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         self.query_analyzer = QueryAnalyzer()
         self.query_router = QueryRouter()
         self.query_translator = QueryTranslator()
-        self.query_agent = QueryAgent(db_path=self.db_path, dbname=self.dbname)  # Initialize the QueryAgent
-        self.web_search_query = WebSearchAgent()
-        self.llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        self.query_agent = QueryAgent(db_path=self.db_path, dbname=self.dbname)
+        self.web_search_agent = WebSearchAgent()
+        self.llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-4o-mini')
         # self.table_data_expert = TableSchemaExpert()
 
     def load_environment_variables(self, env_path):
@@ -34,6 +32,7 @@ class ExpertAssistant:
         os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
         os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
         os.environ['LANGCHAIN_PROJECT'] = os.getenv('LANGCHAIN_PROJECT')
+        os.environ['TAVILY_API_KEY'] = os.getenv('TAVILY_API_KEY')
 
     def create_sub_questions(self, user_query):
         sub_queries = self.query_analyzer.analyze_query(user_query)
@@ -56,16 +55,17 @@ class ExpertAssistant:
             try:
                 with open('data/raw/attribute_info_properties.json', 'r') as json_file:
                     table_metadata = json.load(json_file)
-                print("Found Table Schema Metadata")
+                # print("Found Table Schema Metadata")
                 return table_metadata
             except FileNotFoundError:
-                print("Table Schema Metadata Not Found")
+                # print("Table Schema Metadata Not Found")
                 return None
             
     def translate_query(self, query_source_list, table_schema):
         try:
             translated_queries = []
             if table_schema is None:
+                # print("Add table schema metadata to translate queries")
                 return None
             for query in query_source_list:
                 if isinstance(query['source'].datasource, list):
@@ -77,10 +77,31 @@ class ExpertAssistant:
             return translated_queries
         except Exception as e:
             # print(f"Error translating query: {e}")
-            return None
+            try:
+                prop_vector_context = []
+                prop_chroma_db = Chroma(persist_directory="data/db", embedding_function=self.embedding_model)
+                for query in query_source_list:
+                    docs = prop_chroma_db.similarity_search(query)
+                    if isinstance(docs, list):
+                        for doc in docs:
+                            translated_queries.append(doc)
+                    else:
+                        translated_queries.append(docs)
+                return translated_queries
+            except Exception as e:
+                return None
     
-    def general_advice_query(self, query_source_list):
+    def general_advice_query(self, query_source_list, force_query=False, query=None):
         general_advice_context = []
+        if force_query:
+            query_source_list = None
+            chroma_db = Chroma(persist_directory="./chroma_db", embedding_function=self.embedding_model)
+            docs = chroma_db.similarity_search(query, k=5)
+            if isinstance(docs, list):
+                    for doc in docs:
+                        general_advice_context.append(doc)
+                    else:
+                        general_advice_context.append(docs)
         for query in query_source_list:
             cond_true = False
             if isinstance(query['source'].datasource, list):
@@ -89,7 +110,7 @@ class ExpertAssistant:
                 sub_query = query['question'].decomposition_query
                 chroma_db = Chroma(persist_directory="./chroma_db", embedding_function=self.embedding_model)
                 for query in sub_query:
-                    docs = chroma_db.similarity_search(query)
+                    docs = chroma_db.similarity_search(query, k=5)
                     if isinstance(docs, list):
                         for doc in docs:
                             general_advice_context.append(doc)
@@ -97,19 +118,23 @@ class ExpertAssistant:
                         general_advice_context.append(docs)
         return general_advice_context
     
-    def web_search_query(self, query_source_list, more_context):
-        more_context = "Information should be based in Argentina, specifically Capital Federal, search should be donde in spanish for better results."
-        web_search_context = []
-        for query in query_source_list:
-            cond_true = False
-            if isinstance(query['source'].datasource, list):
-                cond_true = any(e for e in query['source'].datasource if 'llm_expertise' in e)
-            if query['source'].datasource == 'llm_expertise' or cond_true:
-                sub_query = query['question'].decomposition_query
-                for query in sub_query:
-                    web_search_result = self.web_search_agent.return_query_response(query, more_context)['output']
-                    web_search_context.append(web_search_result)
-        return web_search_context
+    def web_search_query(self, query_source_list, more_context=None, run=False):
+        if run:
+            if more_context is None:
+                more_context = "Information should be based in Argentina, specifically Capital Federal, search should be donde in spanish for better results."
+            web_search_context = []
+            for query in query_source_list:
+                cond_true = False
+                if isinstance(query['source'].datasource, list):
+                    cond_true = any(e for e in query['source'].datasource if 'llm_expertise' in e)
+                if query['source'].datasource == 'llm_expertise' or cond_true:
+                    sub_query = query['question'].decomposition_query
+                    for query in sub_query:
+                        web_search_result = self.web_search_agent.return_query_response(query, more_context)['output']
+                        web_search_context.append(web_search_result)
+            return web_search_context if web_search_context else "No hay contexto de búsqueda web, utilizar LLM para responder a la pregunta."
+        else:
+            return "No hay contexto de búsqueda web, utilizar LLM para responder a la pregunta."
 
     def create_prompt(self, user_query, transformed_questions, translated_queries, general_adivice_context,
                       query_results, web_search_context):
@@ -133,6 +158,9 @@ class ExpertAssistant:
             f"Make use of decomposed questions:\n{transformed_questions}\n\n"
             f"That will be translated into the following queries:\n{translated_queries}\n\n"
             f"Query Results:\n{query_results}\n\n"
+            f"for the suggested propoerties and/or pojects, create a list of options with the following information:\n"
+            f"Project Name, Property Name, URL, summarized description, and any other relevant information.\n"
+            f"If pojects are the same for all the property options, list them under the same project.\n"
             f"If query result is None and translated queries is empty or None, provide general advice \n"
             f"and/or if the question is not related to the specifications of the project or property, you can provide general advice.\n"
             f"If possible, create a list of all the key concepts and add important information keeping in mind the"
@@ -156,23 +184,37 @@ class ExpertAssistant:
         table_schema = self.load_schema(list_of_sources)
         translated_queries = self.translate_query(list_of_sources, table_schema)
         general_advice_context = self.general_advice_query(list_of_sources)
+        web_search_context = self.web_search_query(list_of_sources, run=False)
         try:
             self.query_agent.connect()
             query_results = self.query_agent.execute_queries(translated_queries)
             self.query_agent.close()
         except Exception as e:
-            translated_queries = "NO specific queries about a praticular project or property"
-            query_results = "NO specific queries about a praticular project or property"
+            translated_queries = "NO specific queries about a particular project or property"
+            query_results = "NO specific queries about a particular project or property"
         if translated_queries is None:
             translated_queries = "NO specific queries about a praticular project or property"
             query_results = "NO specific queries about a praticular project or property"
         prompt = self.create_prompt(user_query, transformed_questions, translated_queries, general_advice_context,
-                      query_results)
-        response = self.llm.invoke(prompt)
+                      query_results, web_search_context)
+        response = self.llm.invoke(prompt).content
+        # print(prompt)
         return response
+    
+    def analyze_property_url(self, url):
+        try:
+            general_advice_context = self.general_advice_query(force_query=True, query=query)
+            query = f"Analyze the following property URL: {url}. Provide a summary of the property. Analyze price, location, and any other relevant information.\n"
+            f"Provide insights and possible questions to ask the real state agent or developer.\n"
+            f"Provide a list of key concepts and important information to consider.\n"
+            prompt = f"{query}'\n'"
+            f"Also use the following context: {general_advice_context}\n"
+            response = self.llm.invoke(prompt).content
+        except Exception as e:
+            response = "Erro al analizar la URL de la propiedad: por favor, chequeá sin pegaste la URL correctamente."
 
-if __name__ == '__main__':
-    expert = ExpertAssistant()
-    user_query = ("Que tengo que saber para comprar un departamento de pozo en Buenos Aires?")
-    response = expert.process_user_query(user_query)
-    print(response)
+# if __name__ == '__main__':
+#     expert = ExpertAssistant()
+#     user_query = ("Busco un departamento de 2 ambientes en Villa Crespo")
+#     response = expert.process_user_query(user_query)
+#     print(response)

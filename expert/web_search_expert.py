@@ -22,7 +22,8 @@ class WebSearchAgent:
 
     def setup_agent(self):
         try:
-            instructions = """You are an assistant that helps retrieve information from the web based on user queries."""
+            instructions = """You are an assistant that helps retrieve information from the web based on user queries.
+            Information should be based in Capital Federal, Argentina, if neccesary, translate to spanish."""
             base_prompt = hub.pull("langchain-ai/openai-functions-template")
             prompt = base_prompt.partial(instructions=instructions)
             llm = ChatOpenAI(temperature=0)
@@ -32,7 +33,7 @@ class WebSearchAgent:
             self.agent_executor = AgentExecutor(
                 agent=agent,
                 tools=tools,
-                verbose=True,
+                verbose=False,
             )
         except Exception as e:
             print(f"Error setting up the agent: {e}")
