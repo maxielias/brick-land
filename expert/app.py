@@ -24,7 +24,7 @@ def respond_to_query(chatbot, input_txt, chat_type, app_functionality):
 
 with gr.Blocks(css=".gradio-container {background-color: #ff3131}") as demo:
     with gr.Tabs():
-        with gr.TabItem("Preguntame sobre Emprendimientos de Pozo, consejos o tips"):
+        with gr.TabItem("Hola! Soy Brick, tu agente experto en emprendimientos de pozo. ¿En qué puedo ayudarte?"):
             with gr.Row():
                 with gr.Column(scale=6):
                     chatbot = gr.Chatbot(
@@ -41,23 +41,22 @@ with gr.Blocks(css=".gradio-container {background-color: #ff3131}") as demo:
                     input_txt = gr.Textbox(
                         lines=4,
                         scale=8,
-                        placeholder="Enter text and press enter, or insert URL",
+                        placeholder="Escribí acá tu pregunta",
                         container=False,
-                    )
-                    
-                    url_box = gr.Textbox(
-                        label="Insert URL",
-                        placeholder="Insert a URL to analyze"
                     )
 
                     with gr.Row():
-                        text_submit_btn = gr.Button(value="Submit text")
-                        clear_button = gr.ClearButton([input_txt, chatbot])
+                        url_box = gr.Textbox(
+                            label="Insertar URL",
+                            placeholder="Insertar URL para analizar"
+                        )
+                        app_functionality = gr.Dropdown(
+                            label="Modalidad de Chat", choices=["Chat", "Reporte de propiedad"], value="Chat")
 
-                with gr.Column(scale=6):
-                    app_functionality = gr.Dropdown(
-                        label="App functionality", choices=["Chat", "Reporte de propiedad"], value="Chat")
-                    create_report_btn = gr.Button("Create Report")
+                    with gr.Row():
+                        text_submit_btn = gr.Button(value="Preguntar!")
+                        clear_button = gr.ClearButton(value="Borrar",inputs=[input_txt, chatbot])
+                        create_report_btn = gr.Button("Crear reporte")
 
             with gr.Row():
                 file_msg = create_report_btn.click(fn=process_uploaded_files, inputs=[
