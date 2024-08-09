@@ -38,13 +38,7 @@ Para comenzar a utilizar el proyecto Brick-Land, siga estos pasos:
     LANGCHAIN_API_KEY = 'api key'
     LANGCHAIN_TRACING_V2 = 'true'
     LANGCHAIN_ENDPOINT = 'https://api.smith.langchain.com'
-    COHERE_API_KEY = 'api key'
     LANGCHAIN_PROJECT = 'project name'
-    POSTGRES_USER = 'user'
-    POSTGRES_PASSWORD = 'pass'
-    POSTGRES_DB = 'db name'
-    POSTGRES_HOST = 'localhost'
-    POSTGRES_PORT = '5432'
     TAVILY_API_KEY = 'api key'
     ```
 6. Ejecute el script principal para comenzar a explorar las propiedades y recursos disponibles:
