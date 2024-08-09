@@ -15,9 +15,42 @@ El proyecto Brick-Land es una iniciativa para facilitar la inversión en propied
 Para comenzar a utilizar el proyecto Brick-Land, siga estos pasos:
 
 1. Clone el repositorio en su máquina local.
-2. Asegúrese de tener Python instalado y configure un entorno virtual utilizando `.venv`.
-3. Instale las dependencias necesarias ejecutando `pip install -r requirements.txt`.
-4. Ejecute la aplicación principal para comenzar a explorar las propiedades y recursos disponibles.
+2. Asegúrese de tener Python instalado y configure un entorno virtual utilizando `.venv`:
+    ```sh
+    python -m venv .venv
+    ```
+3. Active el entorno virtual:
+    - En Windows:
+        ```sh
+        .venv\Scripts\activate
+        ```
+    - En macOS/Linux:
+        ```sh
+        source .venv/bin/activate
+        ```
+4. Instale las dependencias necesarias ejecutando:
+    ```sh
+    pip install -r requirements.txt
+    ```
+5. Cree un archivo `.env` en la raíz del proyecto y agregue las siguientes variables:
+    ```env
+    OPENAI_API_KEY = 'api key'
+    LANGCHAIN_API_KEY = 'api key'
+    LANGCHAIN_TRACING_V2 = 'true'
+    LANGCHAIN_ENDPOINT = 'https://api.smith.langchain.com'
+    COHERE_API_KEY = 'api key'
+    LANGCHAIN_PROJECT = 'project name'
+    POSTGRES_USER = 'user'
+    POSTGRES_PASSWORD = 'pass'
+    POSTGRES_DB = 'db name'
+    POSTGRES_HOST = 'localhost'
+    POSTGRES_PORT = '5432'
+    TAVILY_API_KEY = 'api key'
+    ```
+6. Ejecute el script principal para comenzar a explorar las propiedades y recursos disponibles:
+    ```sh
+    python expert/app.py
+    ```
 
 ## Contribuir
 
