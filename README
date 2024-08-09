@@ -41,7 +41,18 @@ Para comenzar a utilizar el proyecto Brick-Land, siga estos pasos:
     LANGCHAIN_PROJECT = 'project name'
     TAVILY_API_KEY = 'api key'
     ```
-6. Ejecute el script principal para comenzar a explorar las propiedades y recursos disponibles:
+6. Pude actualizar las bases de información y crear los documentos de la siguiente manera:
+    ```
+    En la carpeta scraper:
+        1) Ejecutar autoscraper.py
+        2) Ejecutar argenprop_scraper.py
+        3) Ejecutar google_search_scraper.py
+        4) Ejecutar youtube_video_transcript.py
+        5) Ejecutar knowledge_creator.py
+        6) Ejecutar sqlite_db.py
+        7) Ejecutar chroma_db.py
+    ```
+7. Ejecute el script principal para comenzar a explorar las propiedades y recursos disponibles:
     ```sh
     python expert/app.py
     ```
